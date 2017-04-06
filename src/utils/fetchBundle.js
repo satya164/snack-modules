@@ -1,6 +1,7 @@
 /* @flow */
 
 import { mkdir, rimraf } from 'sander';
+import querystring from 'querystring';
 import logger from '../logger';
 import fetchAndExtract from './fetchAndExtract';
 import installDependencies from './installDependencies';
@@ -12,9 +13,10 @@ const inProgress = {};
 export default (async function fetchBundle(
   pkg,
   version: string,
-  deep?: string,
+  deep: ?string,
+  query: ?{ platform?: string },
 ) {
-  const hash = `${pkg.name}@${version}${deep ? `/${deep}` : ''}`;
+  const hash = `${pkg.name}@${version}${deep ? `/${deep}` : ''}${query ? `_${querystring.stringify(query)}` : ''}`;
 
   logger.info(`[${pkg.name}] requested package`);
 
@@ -36,7 +38,7 @@ export default (async function fetchBundle(
       await fetchAndExtract(pkg, version, dir);
       await installDependencies(cwd);
 
-      return await packageBundle(cwd, deep);
+      return await packageBundle(cwd, deep, query);
 
       // TODO: cache package
     } finally {

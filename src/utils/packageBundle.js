@@ -8,7 +8,11 @@ import logger from '../logger';
 import makeConfig from '../bundler/makeConfig';
 import makeLegalIdentifier from './makeLegalIdentifier';
 
-export default (async function packageBundle(cwd: string, deep?: string) {
+export default (async function packageBundle(
+  cwd: string,
+  deep: ?string,
+  query: ?{ platform?: string },
+) {
   const content = await readFile(path.join(cwd, 'package.json'));
   const pkg = JSON.parse(content);
   const name = makeLegalIdentifier(pkg.name); // eslint-disable-line
@@ -32,17 +36,19 @@ export default (async function packageBundle(cwd: string, deep?: string) {
     entry = `${file}.js`;
   }
 
-  logger.info('[${pkg.name}] creating bundle with webpack');
+  logger.info(
+    `[${pkg.name}] creating bundle with webpack with for ${String(query && query.platform)}`,
+  );
 
   const compiler = webpack(
     makeConfig({
       root: cwd,
-      platform: 'ios',
       entry,
       output: {
         path: '/',
         filename: 'bundle.js',
       },
+      platform: query && query.platform === 'android' ? 'android' : 'ios',
     }),
   );
 

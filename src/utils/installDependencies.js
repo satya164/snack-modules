@@ -27,30 +27,32 @@ export default (async function installDependencies(cwd: string) {
   const yarn = path.resolve(bin.trim(), 'yarn');
   const { stdout, stderr } = await exec(`${yarn} --production`, cwd);
 
-  if (stdout) {
-    stdout.split('\n').forEach(line => logger.info(`[${pkg.name}] ${line}`));
-  }
-
-  if (stderr) {
-    stderr
-      .split('\n')
-      .forEach(line => logger.info(`[${pkg.name}] Error: ${line}`));
-  }
+  stdout
+    .split('\n')
+    .forEach(line => line && logger.info(`[${pkg.name}] ${line}`));
+  stderr
+    .split('\n')
+    .forEach(line => line && logger.error(`[${pkg.name}] Error: ${line}`));
 
   if (!pkg.peerDependencies) {
     return;
   }
 
-  const peerDependencies = Object.keys(pkg.peerDependencies).filter(
+  const dependencies = Object.keys(pkg.peerDependencies).filter(
     // We don't want multiple copies of react, react-native or expo
     name => !blacklist.includes(name),
   );
 
-  for (const name of peerDependencies) {
-    logger.info(`[${pkg.name}] installing peer dependency ${name}`);
+  if (dependencies.length) {
+    logger.info(
+      `[${pkg.name}] installing peer dependencies: ${dependencies.join(', ')}`,
+    );
 
-    const version = pkg.peerDependencies[name];
-
-    await exec(`${yarn} add ${name}@${version}`, cwd);
+    await exec(
+      `${yarn} add ${dependencies
+        .map(name => `${name}@${pkg.peerDependencies[name]}`)
+        .join(' ')}`,
+      cwd,
+    );
   }
 });

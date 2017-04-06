@@ -2,6 +2,7 @@
 
 import fetch from 'node-fetch';
 import semver from 'semver';
+import querystring from 'querystring';
 import logger from './logger';
 import config from '../config';
 import type { $Request, $Response } from 'express';
@@ -23,8 +24,8 @@ function findVersion(meta, tag) {
 }
 
 export default (async function(req: $Request, res: $Response) {
-  const match = /(?:@([^/]+)\/)?([^@/]+)(?:@(.+?))?(?:\/(.+?))?$/.exec(
-    req.path.replace(/^\/bundle\//, ''),
+  const match = /(?:@([^/?]+)\/)?([^@/?]+)(?:@(.+?))?(?:\/(.+?))?(?:\?(.+))?$/.exec(
+    req.url.replace(/^\/bundle\//, ''),
   );
 
   if (!match) {
@@ -37,6 +38,9 @@ export default (async function(req: $Request, res: $Response) {
   const id = match[2]; // matches id in `@user/id` or `package`
   const tag = match[3] || 'latest'; // matches version number in `package@^3.4.0`
   const deep = match[4]; // matches deep path in `package/debounce` or `package@^3.4.0/debounce`
+  const qs = match[5]; // matches the query string
+
+  console.log(qs);
 
   const qualified = user ? `@${user}/${id}` : id;
 
@@ -61,7 +65,12 @@ export default (async function(req: $Request, res: $Response) {
       return;
     }
 
-    const result = await fetchBundle(meta, version, deep);
+    const result = await fetchBundle(
+      meta,
+      version,
+      deep,
+      qs ? querystring.parse(qs) : null,
+    );
 
     res.status(200);
     res.set({
