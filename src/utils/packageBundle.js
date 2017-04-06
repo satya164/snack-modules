@@ -4,9 +4,9 @@ import path from 'path';
 import { stat, readFile } from 'sander';
 import webpack from 'webpack';
 import MemoryFS from 'memory-fs';
-import logger from '../logger';
-import makeConfig from '../bundler/makeConfig';
 import makeLegalIdentifier from './makeLegalIdentifier';
+import makeConfig from '../bundler/makeConfig';
+import logger from '../logger';
 
 export default (async function packageBundle(
   cwd: string,

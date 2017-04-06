@@ -1,12 +1,12 @@
 /* @flow */
 
+import type { $Request, $Response } from 'express';
 import fetch from 'node-fetch';
 import semver from 'semver';
 import querystring from 'querystring';
 import logger from './logger';
-import config from '../config';
-import type { $Request, $Response } from 'express';
 import fetchBundle from './utils/fetchBundle';
+import config from '../config';
 
 function findVersion(meta, tag) {
   // already a valid version?

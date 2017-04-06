@@ -2,11 +2,11 @@
 
 import { mkdir, rimraf } from 'sander';
 import querystring from 'querystring';
-import logger from '../logger';
 import fetchAndExtract from './fetchAndExtract';
 import installDependencies from './installDependencies';
-import config from '../../config';
 import packageBundle from './packageBundle';
+import logger from '../logger';
+import config from '../../config';
 
 const inProgress = {};
 
