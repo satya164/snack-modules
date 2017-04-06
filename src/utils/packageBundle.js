@@ -2,6 +2,10 @@
 
 import path from 'path';
 import { stat, readFile } from 'sander';
+import webpack from 'webpack';
+import MemoryFS from 'memory-fs';
+import logger from '../logger';
+import makeConfig from '../bundler/makeConfig';
 import makeLegalIdentifier from './makeLegalIdentifier';
 
 export default (async function packageBundle(cwd: string, deep?: string) {
@@ -10,10 +14,12 @@ export default (async function packageBundle(cwd: string, deep?: string) {
   const name = makeLegalIdentifier(pkg.name); // eslint-disable-line
 
   // TODO: use what's supported by packager'
-  const file = path.resolve(
-    cwd,
-    pkg.module || pkg['jsnext:main'] || pkg.main || 'index.js',
-  );
+  const file = deep
+    ? path.resolve(cwd, deep)
+    : path.resolve(
+        cwd,
+        pkg.module || pkg['jsnext:main'] || pkg.main || 'index.js',
+      );
 
   let entry = file;
 
@@ -26,21 +32,45 @@ export default (async function packageBundle(cwd: string, deep?: string) {
     entry = `${file}.js`;
   }
 
-  entry = deep ? path.resolve(cwd, deep) : entry;
+  logger.info('[${pkg.name}] creating bundle with webpack');
 
-  let code;
+  const compiler = webpack(
+    makeConfig({
+      root: cwd,
+      platform: 'ios',
+      entry,
+      output: {
+        path: '/',
+        filename: 'bundle.js',
+      },
+    }),
+  );
 
-  try {
-    code = await readFile(entry, { encoding: 'utf-8' }); // eslint-disable-line
-  } catch (e) {
-    code = await readFile(`${entry}.js`, { encoding: 'utf-8' }); // eslint-disable-line
+  const memoryFs = new MemoryFS();
+
+  compiler.outputFileSystem = memoryFs;
+
+  const status = await new Promise((resolve, reject) =>
+    compiler.run((err, stats) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(stats);
+      }
+    }));
+
+  const result = status.toJson();
+
+  if (result.errors.length) {
+    throw new Error(result.errors.join('\n'));
   }
 
-  // if (isModule(code)) {
-  //   logger.info(`[${pkg.name}] ES2015 module found, using Rollup`);
-  // } else {
-  //   logger.info(`[${pkg.name}] No ES2015 module found, using Browserify`);
-  // }
-
-  return code;
+  return new Promise((resolve, reject) =>
+    memoryFs.readFile('/bundle.js', (err, res) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(res.toString());
+      }
+    }));
 });

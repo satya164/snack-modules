@@ -1,7 +1,6 @@
 /* @flow */
 
 import { mkdir, rimraf } from 'sander';
-import uglify from 'uglifyjs';
 import logger from '../logger';
 import fetchAndExtract from './fetchAndExtract';
 import installDependencies from './installDependencies';
@@ -37,16 +36,7 @@ export default (async function fetchBundle(
       await fetchAndExtract(pkg, version, dir);
       await installDependencies(cwd);
 
-      const code = await packageBundle(cwd, deep);
-
-      logger.info(`[${pkg.name}] minifying`);
-
-      try {
-        return uglify.minify(code, { fromString: true }).code;
-      } catch (err) {
-        logger.info(`[${pkg.name}] minification failed: ${err.message}`);
-        return code;
-      }
+      return await packageBundle(cwd, deep);
 
       // TODO: cache package
     } finally {
