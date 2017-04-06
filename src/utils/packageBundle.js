@@ -71,12 +71,9 @@ export default (async function packageBundle(
     throw new Error(result.errors.join('\n'));
   }
 
-  return new Promise((resolve, reject) =>
-    memoryFs.readFile('/bundle.js', (err, res) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(res.toString());
-      }
-    }));
+  const code = memoryFs.readFileSync('/bundle.js');
+
+  memoryFs.unlinkSync('/bundle.js');
+
+  return code;
 });

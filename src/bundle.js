@@ -40,8 +40,6 @@ export default (async function(req: $Request, res: $Response) {
   const deep = match[4]; // matches deep path in `package/debounce` or `package@^3.4.0/debounce`
   const qs = match[5]; // matches the query string
 
-  console.log(qs);
-
   const qualified = user ? `@${user}/${id}` : id;
 
   try {

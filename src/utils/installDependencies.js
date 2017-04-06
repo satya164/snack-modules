@@ -32,7 +32,7 @@ export default (async function installDependencies(cwd: string) {
     .forEach(line => line && logger.info(`[${pkg.name}] ${line}`));
   stderr
     .split('\n')
-    .forEach(line => line && logger.error(`[${pkg.name}] Error: ${line}`));
+    .forEach(line => line && logger.error(`[${pkg.name}] ${line}`));
 
   if (!pkg.peerDependencies) {
     return;
