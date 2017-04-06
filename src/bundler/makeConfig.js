@@ -9,6 +9,7 @@ type Options = {
   output: {
     path: string,
     filename: string,
+    library: string,
   },
   platform: 'ios' | 'android',
 };
@@ -16,7 +17,10 @@ type Options = {
 export default ({ root, entry, output, platform }: Options) => ({
   context: root,
   entry,
-  output,
+  output: {
+    ...output,
+    libraryTarget: 'commonjs',
+  },
   module: {
     rules: [
       { parser: { requireEnsure: false } },
@@ -66,10 +70,6 @@ export default ({ root, entry, output, platform }: Options) => ({
   externals: ['react', 'react-native', 'expo'],
   resolve: {
     plugins: [new AssetResolver({ platform })],
-    /**
-     * Match what React Native packager supports
-     * First entry takes precendece
-     */
     mainFields: ['react-native', 'browser', 'main'],
     extensions: [`.${platform}.js`, '.native.js', '.js'],
   },

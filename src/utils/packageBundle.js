@@ -47,6 +47,7 @@ export default (async function packageBundle(
       output: {
         path: '/',
         filename: 'bundle.js',
+        library: `${pkg.name}${deep ? `/${deep}` : ''}`,
       },
       platform: query && query.platform === 'android' ? 'android' : 'ios',
     }),
