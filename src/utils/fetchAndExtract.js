@@ -22,19 +22,16 @@ export default function fetchAndExtract(pkg, version: string, dir: string) {
       10000,
     );
 
-    const input = request(url);
+    const read = request(url);
+    const write = createWriteStream(path.join(dir, 'package.tgz'));
 
-    // don't like going via the filesystem, but piping into targz
-    // was failing for some weird reason
-    const intermediate = createWriteStream(path.join(dir, 'package.tgz'));
+    read.pipe(write);
 
-    input.pipe(intermediate);
-
-    intermediate.on('close', () => {
+    write.on('close', () => {
       clearTimeout(timeout);
 
       if (!timedout) {
-        logger.info(`[${pkg.name}] extracting to ${dir}/package`);
+        logger.info(`[${pkg.name}] extracting to ${dir}`);
         targz()
           .extract(path.join(dir, 'package.tgz'), dir)
           .then(resolve, reject);

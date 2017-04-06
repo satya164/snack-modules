@@ -28,7 +28,13 @@ export default (async function packageBundle(cwd: string, deep?: string) {
 
   entry = deep ? path.resolve(cwd, deep) : entry;
 
-  const code = await readFile(entry, { encoding: 'utf-8' }); // eslint-disable-line
+  let code;
+
+  try {
+    code = await readFile(entry, { encoding: 'utf-8' }); // eslint-disable-line
+  } catch (e) {
+    code = await readFile(`${entry}.js`, { encoding: 'utf-8' }); // eslint-disable-line
+  }
 
   // if (isModule(code)) {
   //   logger.info(`[${pkg.name}] ES2015 module found, using Rollup`);
@@ -36,5 +42,5 @@ export default (async function packageBundle(cwd: string, deep?: string) {
   //   logger.info(`[${pkg.name}] No ES2015 module found, using Browserify`);
   // }
 
-  return 'module.exports = "Example bundle code"';
+  return code;
 });

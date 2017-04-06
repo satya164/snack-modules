@@ -27,19 +27,22 @@ export default (async function installDependencies(cwd: string) {
   const yarn = path.resolve(bin.trim(), 'yarn');
   const { stdout, stderr } = await exec(`${yarn} --production`, cwd);
 
-  stdout.split('\n').forEach(line => {
-    logger.info(`[${pkg.name}] ${line}`);
-  });
+  if (stdout) {
+    stdout.split('\n').forEach(line => logger.info(`[${pkg.name}] ${line}`));
+  }
 
-  stderr.split('\n').forEach(line => {
-    logger.info(`[${pkg.name}] Error: ${line}`);
-  });
+  if (stderr) {
+    stderr
+      .split('\n')
+      .forEach(line => logger.info(`[${pkg.name}] Error: ${line}`));
+  }
 
   if (!pkg.peerDependencies) {
     return;
   }
 
-  const peerDependencies = Object.keys(pkg.peerDependencies).filter( // We don't want multiple copies of react, react-native or expo
+  const peerDependencies = Object.keys(pkg.peerDependencies).filter(
+    // We don't want multiple copies of react, react-native or expo
     name => !blacklist.includes(name),
   );
 
