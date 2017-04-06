@@ -10,7 +10,11 @@ import packageBundle from './packageBundle';
 
 const inProgress = {};
 
-export default async function fetchBundle(pkg, version: string, deep?: string) {
+export default (async function fetchBundle(
+  pkg,
+  version: string,
+  deep?: string,
+) {
   const hash = `${pkg.name}@${version}${deep ? `/${deep}` : ''}`;
 
   logger.info(`[${pkg.name}] requested package`);
@@ -52,4 +56,4 @@ export default async function fetchBundle(pkg, version: string, deep?: string) {
   }
 
   return inProgress[hash];
-}
+});

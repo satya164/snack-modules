@@ -9,17 +9,20 @@ import fetchBundle from './utils/fetchBundle';
 
 function findVersion(meta, tag) {
   // already a valid version?
-  if (semver.valid(tag)) return meta.versions[tag] && tag;
+  if (semver.valid(tag)) {
+    return meta.versions[tag] && tag;
+  }
 
   // dist tag
-  if (tag in meta['dist-tags']) return meta['dist-tags'][tag];
+  if (tag in meta['dist-tags']) {
+    return meta['dist-tags'][tag];
+  }
 
   // semver range
   return semver.maxSatisfying(Object.keys(meta.versions), tag);
 }
 
-
-export default async function(req: $Request, res: $Response) {
+export default (async function(req: $Request, res: $Response) {
   const match = /(?:@([^/]+)\/)?([^@/]+)(?:@(.+?))?(?:\/(.+?))?$/.exec(
     req.path.replace(/^\/bundle\//, ''),
   );
@@ -30,15 +33,18 @@ export default async function(req: $Request, res: $Response) {
     return;
   }
 
-  const user = match[1];
-  const id = match[2];
-  const tag = match[3] || 'latest';
-  const deep = match[4];
+  const user = match[1]; // matches user in `@user/package`
+  const id = match[2]; // matches id in `@user/id` or `package`
+  const tag = match[3] || 'latest'; // matches version number in `package@^3.4.0`
+  const deep = match[4]; // matches deep path in `package/debounce` or `package@^3.4.0/debounce`
 
   const qualified = user ? `@${user}/${id}` : id;
 
   try {
-    const response = await fetch(`${config.registry}/${encodeURIComponent(qualified)}`);
+    // Fetch the package metadata from the registry
+    const response = await fetch(
+      `${config.registry}/${encodeURIComponent(qualified)}`,
+    );
     const meta = await response.json();
 
     if (!meta.versions) {
@@ -64,8 +70,8 @@ export default async function(req: $Request, res: $Response) {
     });
     res.end(result);
   } catch (e) {
-    logger.error(`[${qualified}] ${e.message}`);
+    logger.error(`[${qualified}] ${e.toString()}`);
     res.status(500);
     res.end('An unknown error occured');
   }
-}
+});

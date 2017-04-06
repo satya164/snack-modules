@@ -5,17 +5,19 @@ import child_process from 'child_process';
 import { readFile } from 'sander';
 import logger from '../logger';
 
-const exec = (cmd, cwd) => new Promise((resolve, reject) =>
-  child_process.exec(cmd, { cwd }, (err, stdout, stderr) => {
-    if (err) {
-      reject(err);
-    } else {
-      resolve({ stdout: stdout.toString(), stderr: stderr.toString() });
-    }
-  })
-);
+const blacklist = ['react', 'react-native', 'expo'];
 
-export default async function installDependencies(cwd: string) {
+const exec = (cmd, cwd) =>
+  new Promise((resolve, reject) =>
+    child_process.exec(cmd, { cwd }, (err, stdout, stderr) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve({ stdout: stdout.toString(), stderr: stderr.toString() });
+      }
+    }));
+
+export default (async function installDependencies(cwd: string) {
   const content = await readFile(path.join(cwd, 'package.json'));
   const pkg = JSON.parse(content);
 
@@ -37,7 +39,9 @@ export default async function installDependencies(cwd: string) {
     return;
   }
 
-  const peerDependencies = Object.keys(pkg.peerDependencies);
+  const peerDependencies = Object.keys(pkg.peerDependencies).filter( // We don't want multiple copies of react, react-native or expo
+    name => !blacklist.includes(name),
+  );
 
   for (const name of peerDependencies) {
     logger.info(`[${pkg.name}] installing peer dependency ${name}`);
@@ -46,4 +50,4 @@ export default async function installDependencies(cwd: string) {
 
     await exec(`${yarn} add ${name}@${version}`, cwd);
   }
-}
+});

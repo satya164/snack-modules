@@ -35,7 +35,9 @@ export default function fetchAndExtract(pkg, version: string, dir: string) {
 
       if (!timedout) {
         logger.info(`[${pkg.name}] extracting to ${dir}/package`);
-        targz().extract(path.join(dir, 'package.tgz'), dir).then(resolve, reject);
+        targz()
+          .extract(path.join(dir, 'package.tgz'), dir)
+          .then(resolve, reject);
       }
     });
   });

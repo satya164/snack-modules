@@ -4,10 +4,10 @@ import path from 'path';
 import { stat, readFile } from 'sander';
 import makeLegalIdentifier from './makeLegalIdentifier';
 
-export default async function packageBundle(cwd: string, deep?: string) {
+export default (async function packageBundle(cwd: string, deep?: string) {
   const content = await readFile(path.join(cwd, 'package.json'));
   const pkg = JSON.parse(content);
-  const name = makeLegalIdentifier(pkg.name);
+  const name = makeLegalIdentifier(pkg.name); // eslint-disable-line
 
   // TODO: use what's supported by packager'
   const file = path.resolve(
@@ -28,7 +28,7 @@ export default async function packageBundle(cwd: string, deep?: string) {
 
   entry = deep ? path.resolve(cwd, deep) : entry;
 
-  const code = await readFile(entry, { encoding: 'utf-8' });
+  const code = await readFile(entry, { encoding: 'utf-8' }); // eslint-disable-line
 
   // if (isModule(code)) {
   //   logger.info(`[${pkg.name}] ES2015 module found, using Rollup`);
@@ -37,4 +37,4 @@ export default async function packageBundle(cwd: string, deep?: string) {
   // }
 
   return 'module.exports = "Example bundle code"';
-}
+});
