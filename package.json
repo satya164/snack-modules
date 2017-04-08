@@ -7,6 +7,7 @@
     "babel-loader": "^6.4.1",
     "babel-preset-react-native": "^1.9.1",
     "babel-register": "^6.24.0",
+    "cors": "^2.8.3",
     "escape-string-regexp": "^1.0.5",
     "express": "^4.15.2",
     "hasha": "^2.2.0",
