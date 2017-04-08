@@ -23,22 +23,20 @@ export default (async function fetchBundle(
   // TODO: return from cache if exists
 
   if (inProgress[hash]) {
-    logger.info(`[${pkg.name}] request was already in progress`);
+    logger.info(`[${pkg.name}] request is already in progress`);
   } else {
     logger.info(`[${pkg.name}] is not cached`);
 
     const dir = `${config.tmpdir}/${hash}`;
     const cwd = `${dir}/package`;
 
-    // TODO: cache the promise
-    inProgress[hash] = true;
+    inProgress[hash] = mkdir(dir)
+      .then(() => fetchAndExtract(pkg, version, dir))
+      .then(() => installDependencies(cwd))
+      .then(() => packageBundle(cwd, deep, query));
 
     try {
-      await mkdir(dir);
-      await fetchAndExtract(pkg, version, dir);
-      await installDependencies(cwd);
-
-      return await packageBundle(cwd, deep, query);
+      return await inProgress[hash];
 
       // TODO: cache package
     } finally {
