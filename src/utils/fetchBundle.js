@@ -15,9 +15,9 @@ export default (async function fetchBundle(
   pkg: Package,
   version: string,
   deep: ?string,
-  query: ?{ platform?: string },
+  platform: ?string,
 ) {
-  const hash = `${pkg.name}@${version}${deep ? `/${deep}` : ''}${query ? `_${querystring.stringify(query)}` : ''}`;
+  const hash = `${pkg.name}${deep ? `/${deep}` : ''}@${version}${platform ? `-${platform}` : ''}`;
 
   logger.info(`[${pkg.name}] requested package`);
 
@@ -34,7 +34,7 @@ export default (async function fetchBundle(
     inProgress[hash] = mkdir(dir)
       .then(() => fetchAndExtract(pkg, version, dir))
       .then(() => installDependencies(cwd))
-      .then(() => packageBundle(cwd, deep, query));
+      .then(() => packageBundle(cwd, deep, platform));
 
     try {
       return await inProgress[hash];

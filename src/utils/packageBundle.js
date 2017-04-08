@@ -11,7 +11,7 @@ import logger from '../logger';
 export default (async function packageBundle(
   cwd: string,
   deep: ?string,
-  query: ?{ platform?: string },
+  platform: ?string,
 ) {
   const content = await readFile(path.join(cwd, 'package.json'));
   const pkg = JSON.parse(content);
@@ -37,7 +37,7 @@ export default (async function packageBundle(
   }
 
   logger.info(
-    `[${pkg.name}] creating bundle with webpack with for ${String(query && query.platform)}`,
+    `[${pkg.name}] creating bundle with webpack with for ${String(platform)}`,
   );
 
   const compiler = webpack(
@@ -49,7 +49,7 @@ export default (async function packageBundle(
         filename: 'bundle.js',
         library: `${pkg.name}${deep ? `/${deep}` : ''}`,
       },
-      platform: query && query.platform === 'android' ? 'android' : 'ios',
+      platform: platform === 'android' ? 'android' : 'ios',
     }),
   );
 

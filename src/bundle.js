@@ -3,9 +3,9 @@
 import type { $Request, $Response } from 'express';
 import fetch from 'node-fetch';
 import semver from 'semver';
-import querystring from 'querystring';
 import logger from './logger';
 import fetchBundle from './utils/fetchBundle';
+import parseRequest from './utils/parseRequest';
 import config from '../config';
 
 function findVersion(meta, tag) {
@@ -24,23 +24,15 @@ function findVersion(meta, tag) {
 }
 
 export default (async function(req: $Request, res: $Response) {
-  const match = /(?:@([^/?]+)\/)?([^@/?]+)(?:@(.+?))?(?:\/(.+?))?(?:\?(.+))?$/.exec(
-    req.url.replace(/^\/bundle\//, ''),
-  );
+  const parsed = parseRequest(req.url.replace(/^\/bundle/, ''));
 
-  if (!match) {
+  if (!(parsed && parsed.id)) {
     res.status(400);
     res.end('Invalid module ID');
     return;
   }
 
-  const user = match[1]; // matches user in `@user/package`
-  const id = match[2]; // matches id in `@user/id` or `package`
-  const tag = match[3] || 'latest'; // matches version number in `package@^3.4.0`
-  const deep = match[4]; // matches deep path in `package/debounce` or `package@^3.4.0/debounce`
-  const qs = match[5]; // matches the query string
-
-  const qualified = user ? `@${user}/${id}` : id;
+  const qualified = parsed.scope ? `@${parsed.scope}/${parsed.id}` : parsed.id;
 
   try {
     // Fetch the package metadata from the registry
@@ -55,7 +47,7 @@ export default (async function(req: $Request, res: $Response) {
       return;
     }
 
-    const version = findVersion(meta, tag);
+    const version = parsed.tag ? findVersion(meta, parsed.tag) : null;
 
     if (!version || !semver.valid(version)) {
       res.status(400);
@@ -63,12 +55,7 @@ export default (async function(req: $Request, res: $Response) {
       return;
     }
 
-    const code = await fetchBundle(
-      meta,
-      version,
-      deep,
-      qs ? querystring.parse(qs) : null,
-    );
+    const code = await fetchBundle(meta, version, parsed.deep, parsed.platform);
 
     res.status(200);
     res.end(

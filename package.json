@@ -46,6 +46,7 @@
   },
   "scripts": {
     "start": "nodemon index.js",
+    "test": "jest",
     "precommit": "flow && lint-staged"
   },
   "lint-staged": {
