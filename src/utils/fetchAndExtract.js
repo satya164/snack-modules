@@ -5,8 +5,13 @@ import request from 'request';
 import targz from 'tar.gz';
 import { createWriteStream } from 'sander';
 import logger from '../logger';
+import type { Package } from '../types';
 
-export default function fetchAndExtract(pkg, version: string, dir: string) {
+export default function fetchAndExtract(
+  pkg: Package,
+  version: string,
+  dir: string,
+) {
   const url = pkg.versions[version].dist.tarball;
 
   logger.info(`[${pkg.name}] fetching ${url}`);

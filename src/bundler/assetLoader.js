@@ -133,4 +133,5 @@ export default (async function assetLoader() {
   );
 });
 
+/* $FlowFixMe: Flow is crazy */
 assetLoader.raw = true;

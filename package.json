@@ -38,13 +38,14 @@
     "flow": "^0.2.3",
     "flow-bin": "^0.43.0",
     "husky": "^0.13.3",
+    "jest": "^19.0.2",
     "lint-staged": "^3.4.0",
     "nodemon": "^1.11.0",
     "prettier": "^0.22.0"
   },
   "scripts": {
     "start": "nodemon index.js",
-    "precommit": "lint-staged"
+    "precommit": "flow && lint-staged"
   },
   "lint-staged": {
     "*.js": [

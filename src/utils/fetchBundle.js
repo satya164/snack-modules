@@ -7,11 +7,12 @@ import installDependencies from './installDependencies';
 import packageBundle from './packageBundle';
 import logger from '../logger';
 import config from '../../config';
+import type { Package } from '../types';
 
 const inProgress = {};
 
 export default (async function fetchBundle(
-  pkg,
+  pkg: Package,
   version: string,
   deep: ?string,
   query: ?{ platform?: string },
