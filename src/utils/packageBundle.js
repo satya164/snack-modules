@@ -72,7 +72,7 @@ export default (async function packageBundle(
     throw new Error(result.errors.join('\n'));
   }
 
-  const code = memoryFs.readFileSync('/bundle.js');
+  const code = memoryFs.readFileSync('/bundle.js').toString();
 
   memoryFs.unlinkSync('/bundle.js');
 

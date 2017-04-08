@@ -63,7 +63,7 @@ export default (async function(req: $Request, res: $Response) {
       return;
     }
 
-    const result = await fetchBundle(
+    const code = await fetchBundle(
       meta,
       version,
       deep,
@@ -71,11 +71,12 @@ export default (async function(req: $Request, res: $Response) {
     );
 
     res.status(200);
-    res.set({
-      'Content-Type': 'application/javascript',
-      'Cache-Control': 'max-age=86400',
-    });
-    res.end(result);
+    res.end(
+      JSON.stringify({
+        version,
+        code,
+      }),
+    );
   } catch (e) {
     logger.error(`[${qualified}] ${e.toString()}`);
     res.status(500);
