@@ -1,5 +1,7 @@
 # snack-modules
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/satya164/snack-modules.svg?token=5abe3bb31b0ed282e25c782944b4e1aab38f53bd01088634b57d8a14e233ccf6&ts=1494409521834)](https://greenkeeper.io/)
+
 Service to generate React Native compatible JavaScript bundles from NPM modules.
 
 ## Usage
